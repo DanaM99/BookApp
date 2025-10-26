@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services") // Este es el plugin de Firebase
 }
 
 android {
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.bookapp"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -45,7 +46,7 @@ android {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
 
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -69,7 +70,12 @@ dependencies {
     implementation(libs.androidx.material3)
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.0")
+    implementation("androidx.navigation:navigation-compose:2.9.5")
+
+    // Firebase BOM y módulos (Corregido: sin sufijo -ktx y BOM actualizada)
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation("com.google.firebase:firebase-auth") // Corregido: sin -ktx
+    implementation("com.google.firebase:firebase-analytics") // Corregido: sin -ktx
 
     // Testing
     testImplementation(libs.junit)
@@ -82,3 +88,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+
+

@@ -1,17 +1,15 @@
+// settings.gradle.kts
+
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
+    // Todos los repositorios se definen aquí, no en los módulos
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
@@ -21,4 +19,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "BookApp"
 include(":app")
+
  
