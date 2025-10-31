@@ -9,7 +9,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun MainScreen(
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onGoToSearch: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -17,9 +18,19 @@ fun MainScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "¡Bienvenido a tu Biblioteca!", style = MaterialTheme.typography.titleLarge)
+
         Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onGoToSearch) {
+            Text("Buscar Libros 📚")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = onLogout) {
             Text("Cerrar sesión")
         }
     }
 }
+
+
