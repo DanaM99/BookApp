@@ -58,8 +58,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("com.google.firebase:firebase-firestore-ktx:24.7.1")
-    implementation("com.google.code.gson:gson:2.10.1")
+
     // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -78,10 +77,13 @@ dependencies {
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.9.5")
 
-    // Firebase BOM y módulos (Corregido: sin sufijo -ktx y BOM actualizada)
+    // ✅ Firebase BOM (esto controla TODAS las versiones)
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
-    implementation("com.google.firebase:firebase-auth") // Corregido: sin -ktx
-    implementation("com.google.firebase:firebase-analytics") // Corregido: sin -ktx
+
+    // ✅ Firebase dependencies (sin -ktx, porque BOM ya incluye KTX)
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-firestore")   // ✅ FALTABA ESTE
 
     // Testing
     testImplementation(libs.junit)

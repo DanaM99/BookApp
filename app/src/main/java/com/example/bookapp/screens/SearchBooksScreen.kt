@@ -49,7 +49,10 @@ fun SearchBooksScreen(navController: NavController) {
                         }
                 ) {
                     Image(
-                        painter = rememberAsyncImagePainter(book.volumeInfo.imageLinks?.thumbnail),
+                        painter = rememberAsyncImagePainter(
+                            book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+                        )
+                        ,
                         contentDescription = null,
                         modifier = Modifier.size(80.dp)
                     )
