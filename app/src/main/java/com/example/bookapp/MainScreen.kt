@@ -10,20 +10,14 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
-    onGoToSearch: () -> Unit,
-    onGoToSavedBooks: () -> Unit // 🔹 Nuevo callback para navegar a libros guardados
+    onGoToSearch: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "¡Bienvenido a tu Biblioteca!",
-            style = MaterialTheme.typography.titleLarge
-        )
+        Text(text = "¡Bienvenido a tu Biblioteca!", style = MaterialTheme.typography.titleLarge)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -33,14 +27,10 @@ fun MainScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = onGoToSavedBooks) {
-            Text("Libros guardados 💾")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         Button(onClick = onLogout) {
             Text("Cerrar sesión")
         }
     }
 }
+
+

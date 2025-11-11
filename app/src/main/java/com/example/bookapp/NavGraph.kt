@@ -18,7 +18,6 @@ sealed class Screen(val route: String) {
     object Register: Screen("register")
     object Main: Screen("main")
     object Search: Screen("search")
-    object SavedBooks : Screen("saved_books")
 
     object BookDetail : Screen("book_detail/{bookJson}") {
         fun createRoute(bookJson: String) = "book_detail/$bookJson"
@@ -57,17 +56,7 @@ fun NavGraph(startDestination: String = Screen.Login.route) {
                 },
                 onGoToSearch = {
                     navController.navigate(Screen.Search.route)
-                },
-                onGoToSavedBooks = {
-                    navController.navigate(Screen.SavedBooks.route)
                 }
-            )
-        }
-
-        composable(Screen.SavedBooks.route) {
-            SavedBooksScreen(
-                savedBooks = emptyList(), // más adelante traeremos los datos reales
-                onBack = { navController.popBackStack() }
             )
         }
 
