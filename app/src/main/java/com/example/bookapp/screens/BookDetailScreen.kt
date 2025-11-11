@@ -20,58 +20,30 @@ fun BookDetailScreen(
     book: BookItem,
     viewModel: BookDetailViewModel = viewModel()
 ) {
-    // Cargamos el libro cuando cambia (clave = id para evitar recargas innecesarias)
-    LaunchedEffect(book.id) {
-        viewModel.loadBook(book)
-    }
-
-    val bookState by viewModel.bookState.collectAsState()
-
-    if (bookState == null) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
-    val ui = bookState!! // atajo local
-
-    val scrollState = rememberScrollState()
-
-    // Estados locales sincronizados con el estado del ViewModel
-    var localRating by remember(ui.id) { mutableStateOf(ui.rating.toFloat()) }
-    var localComment by remember(ui.id) { mutableStateOf(ui.comment) }
-
-    // Si el estado cambia desde afuera (por ejemplo, repo), actualizamos locales
-    LaunchedEffect(ui.rating) { localRating = ui.rating.toFloat() }
-    LaunchedEffect(ui.comment) { localComment = ui.comment }
-
     var savedMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(scrollState)
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
-        // Título
-        Text(ui.title, style = MaterialTheme.typography.titleLarge)
+
+        // TÍTULO
+        Text(book.volumeInfo.title ?: "Sin título", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
 
-        // Autores
-        Text(ui.authors, style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(16.dp))
+        // AUTORES
+        book.volumeInfo.authors?.let {
+            Text(it.joinToString(), style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(16.dp))
+        }
 
-        // Portada (si hay)
-        ui.thumbnail?.let { thumb ->
+        // IMAGEN
+        book.volumeInfo.imageLinks?.thumbnail?.let { thumb ->
             Image(
                 painter = rememberAsyncImagePainter(thumb),
-                contentDescription = ui.title,
+                contentDescription = book.volumeInfo.title,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp)
@@ -79,79 +51,25 @@ fun BookDetailScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        // ---- DESCRIPCIÓN (siempre desde el estado del ViewModel) ----
-        val description = ui.description ?: "Sin descripción"
+        // DESCRIPCIÓN
         Text(
-            text = description,
+            text = book.volumeInfo.description ?: "Sin descripción",
             style = MaterialTheme.typography.bodyMedium,
             overflow = TextOverflow.Ellipsis
         )
 
         Spacer(Modifier.height(24.dp))
 
-        // ---------- ESTADO ----------
-        Text("Estado:", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
-
-        Row {
-            Button(
-                onClick = {
-                    viewModel.updateField("status", "read")
-                    savedMessage = "Estado guardado ✔"
-                },
-                modifier = Modifier.weight(1f)
-            ) { Text("✅ Leído") }
-
-            Spacer(Modifier.width(8.dp))
-
-            Button(
-                onClick = {
-                    viewModel.updateField("status", "to_read")
-                    savedMessage = "Estado guardado ✔"
-                },
-                modifier = Modifier.weight(1f)
-            ) { Text("📘 Para leer") }
-        }
-
-        Spacer(Modifier.height(24.dp))
-
-        // ---------- RATING ----------
-        Text("Puntuación:", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
-
-        Slider(
-            value = localRating,
-            onValueChange = { localRating = it },
-            onValueChangeFinished = {
-                viewModel.updateField("rating", localRating.toInt())
-                savedMessage = "Puntuación guardada ✔"
-            },
-            valueRange = 0f..5f,
-            steps = 4
-        )
-
-        Text("⭐ ${localRating.toInt()} / 5")
-
-        Spacer(Modifier.height(24.dp))
-
-        // ---------- COMENTARIO ----------
-        OutlinedTextField(
-            value = localComment,
-            onValueChange = { localComment = it },
-            label = { Text("Comentario") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(Modifier.height(8.dp))
-
+        // ✅ BOTÓN GUARDAR LIBRO
         Button(
             onClick = {
-                viewModel.updateField("comment", localComment)
-                savedMessage = "Comentario guardado ✔"
+                viewModel.saveBook(book) { success ->
+                    savedMessage = if (success) "Libro guardado ✔" else "Error al guardar"
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Guardar comentario")
+            Text("Guardar libro 📚")
         }
 
         Spacer(Modifier.height(16.dp))

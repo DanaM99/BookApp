@@ -10,7 +10,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun MainScreen(
     onLogout: () -> Unit,
-    onGoToSearch: () -> Unit
+    onGoToSearch: () -> Unit,
+    onGoToSavedBooks: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -23,6 +24,11 @@ fun MainScreen(
 
         Button(onClick = onGoToSearch) {
             Text("Buscar Libros 📚")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = onGoToSavedBooks) {
+            Text("Mis libros")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
