@@ -21,7 +21,6 @@ data class BookDetailUi(
 
 class BookDetailViewModel : ViewModel() {
 
-    // ✅ AGREGAMOS FIREBASE
     private val auth = FirebaseAuth.getInstance()
     private val firestore = FirebaseFirestore.getInstance()
 
@@ -31,8 +30,7 @@ class BookDetailViewModel : ViewModel() {
     fun loadBook(book: BookItem) {
         val title = book.volumeInfo.title ?: "Sin título"
         val authors = book.volumeInfo.authors?.joinToString(", ") ?: "Autor desconocido"
-        val thumb = book.volumeInfo.imageLinks?.thumbnail
-            ?.replace("http://", "https://")
+        val thumb = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
         val description = book.volumeInfo.description
 
         _bookState.value = BookDetailUi(
@@ -44,33 +42,34 @@ class BookDetailViewModel : ViewModel() {
         )
     }
 
-    fun updateField(field: String, value: Any) {
-        val current = _bookState.value ?: return
-        when (field) {
-            "status" -> _bookState.value = current.copy(status = value as String)
-            "rating" -> _bookState.value = current.copy(rating = (value as Number).toInt())
-            "comment" -> _bookState.value = current.copy(comment = value as String)
-            "description" -> _bookState.value = current.copy(description = value as String)
-        }
-    }
-
-    // ✅ NUEVO: función para guardar el libro en Firestore
     fun saveBook(book: BookItem, onComplete: (Boolean) -> Unit) {
         val user = auth.currentUser ?: return onComplete(false)
-
-        val data = hashMapOf(
-            "title" to book.volumeInfo.title,
-            "authors" to book.volumeInfo.authors,
-            "description" to book.volumeInfo.description,
-            "thumbnail" to book.volumeInfo.imageLinks?.thumbnail
-        )
-
-        firestore.collection("users")
+        val userBooksRef = firestore.collection("users")
             .document(user.uid)
             .collection("books")
-            .document(book.id ?: book.volumeInfo.title ?: "sin_id")
-            .set(data)
-            .addOnSuccessListener { onComplete(true) }
+
+        val bookId = book.id.ifEmpty { book.volumeInfo.title ?: "sin_id" }
+
+        userBooksRef.document(bookId).get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    onComplete(false) // Ya existe
+                } else {
+                    // ⚡ Nos aseguramos de que si no tiene pageCount, guardamos 0 en su lugar
+                    val data = hashMapOf(
+                        "id" to book.id,
+                        "title" to (book.volumeInfo.title ?: "Sin título"),
+                        "authors" to (book.volumeInfo.authors ?: emptyList<String>()),
+                        "description" to (book.volumeInfo.description ?: ""),
+                        "thumbnail" to (book.volumeInfo.imageLinks?.thumbnail ?: ""),
+                        "pageCount" to (book.volumeInfo.pageCount ?: 0)
+                    )
+
+                    userBooksRef.document(bookId).set(data)
+                        .addOnSuccessListener { onComplete(true) }
+                        .addOnFailureListener { onComplete(false) }
+                }
+            }
             .addOnFailureListener { onComplete(false) }
     }
 }

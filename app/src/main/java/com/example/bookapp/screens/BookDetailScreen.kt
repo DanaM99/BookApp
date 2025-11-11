@@ -60,11 +60,11 @@ fun BookDetailScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        // ✅ BOTÓN GUARDAR LIBRO
+        //  BOTÓN GUARDAR LIBRO
         Button(
             onClick = {
                 viewModel.saveBook(book) { success ->
-                    savedMessage = if (success) "Libro guardado ✔" else "Error al guardar"
+                    savedMessage = if (success) "Libro guardado ✔" else "El libro ya existe en su biblioteca"
                 }
             },
             modifier = Modifier.fillMaxWidth()

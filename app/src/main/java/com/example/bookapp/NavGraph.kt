@@ -11,17 +11,19 @@ import com.google.gson.Gson
 import java.net.URLDecoder
 import com.example.bookapp.data.model.BookItem
 
-
-
 sealed class Screen(val route: String) {
-    object Login: Screen("login")
-    object Register: Screen("register")
-    object Main: Screen("main")
-    object Search: Screen("search")
-    object SavedBooks : Screen("saved_books")
+    object Login : Screen("login")
+    object Register : Screen("register")
+    object Main : Screen("main")
+    object Search : Screen("search")
+    object SavedBooks : Screen("savedBooks")
 
     object BookDetail : Screen("book_detail/{bookJson}") {
         fun createRoute(bookJson: String) = "book_detail/$bookJson"
+    }
+
+    object SavedBookDetail : Screen("savedBookDetail/{bookId}") {
+        fun createRoute(bookId: String) = "savedBookDetail/$bookId"
     }
 }
 
@@ -63,16 +65,31 @@ fun NavGraph(startDestination: String = Screen.Login.route) {
                 }
             )
         }
-        composable(Screen.SavedBooks.route) {
-            SavedBooksScreen()
-        }
-
 
         composable(Screen.Search.route) {
             SearchBooksScreen(navController = navController)
         }
 
-        //  pantalla de detalles
+        //  Mis libros guardados
+        composable(Screen.SavedBooks.route) {
+            SavedBooksScreen(onBookClick = { bookId ->
+                navController.navigate(Screen.SavedBookDetail.createRoute(bookId))
+            })
+        }
+
+        //  Detalle de libro guardado
+        composable(
+            route = Screen.SavedBookDetail.route,
+            arguments = listOf(navArgument("bookId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
+            SavedBookDetailScreen(
+                bookId = bookId,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        //  Detalle de libro desde búsqueda
         composable(
             route = Screen.BookDetail.route,
             arguments = listOf(navArgument("bookJson") { type = NavType.StringType })
