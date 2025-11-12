@@ -53,15 +53,16 @@ class BookDetailViewModel : ViewModel() {
         userBooksRef.document(bookId).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
-                    onComplete(false) // Ya existe
+                    onComplete(false)
                 } else {
-                    // ⚡ Nos aseguramos de que si no tiene pageCount, guardamos 0 en su lugar
+                    val secureThumbnail = book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://") ?: ""
+
                     val data = hashMapOf(
                         "id" to book.id,
                         "title" to (book.volumeInfo.title ?: "Sin título"),
                         "authors" to (book.volumeInfo.authors ?: emptyList<String>()),
                         "description" to (book.volumeInfo.description ?: ""),
-                        "thumbnail" to (book.volumeInfo.imageLinks?.thumbnail ?: ""),
+                        "thumbnail" to secureThumbnail,
                         "pageCount" to (book.volumeInfo.pageCount ?: 0)
                     )
 
@@ -73,3 +74,4 @@ class BookDetailViewModel : ViewModel() {
             .addOnFailureListener { onComplete(false) }
     }
 }
+

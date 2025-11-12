@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
@@ -25,6 +26,11 @@ fun SavedBookDetailScreen(
         }
         return
     }
+
+    // Estados locales para reseña y estado del libro
+    var status by remember { mutableStateOf(book.status ?: "none") }
+    var rating by remember { mutableStateOf(book.rating ?: 0) }
+    var comment by remember { mutableStateOf(TextFieldValue(book.comment ?: "")) }
 
     Column(
         modifier = Modifier
@@ -61,7 +67,48 @@ fun SavedBookDetailScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botones
+        // 🔹 Estado de lectura
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text("Estado:")
+            Switch(
+                checked = status == "read",
+                onCheckedChange = { checked ->
+                    status = if (checked) "read" else "unread"
+                }
+            )
+            Text(if (status == "read") "Leído" else "No leído")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Rating (slider)
+        Text("Puntuación: $rating/5")
+        Slider(
+            value = rating.toFloat(),
+            onValueChange = { rating = it.toInt() },
+            valueRange = 0f..5f,
+            steps = 4
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // 🔹 Comentario
+        Text("Comentario:")
+        OutlinedTextField(
+            value = comment,
+            onValueChange = { comment = it },
+            placeholder = { Text("Escribe tu reseña...") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // 🔹 Botones de acción
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = {
                 viewModel.deleteBook(bookId)
@@ -70,11 +117,13 @@ fun SavedBookDetailScreen(
                 Text("Quitar de mi biblioteca")
             }
 
-            OutlinedButton(onClick = {
-                // Navegar o abrir modal de reseña
+            Button(onClick = {
+                viewModel.updateBookDetails(bookId, status, rating, comment.text)
+                onBack()
             }) {
-                Text("Añadir reseña")
+                Text("Guardar cambios")
             }
         }
     }
 }
+

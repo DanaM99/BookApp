@@ -1,5 +1,6 @@
 package com.example.bookapp.screens
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.bookapp.Screen
 import com.example.bookapp.viewmodel.BooksViewModel
 import com.google.gson.Gson
 
@@ -44,21 +44,24 @@ fun SearchBooksScreen(navController: NavController) {
                     Modifier
                         .padding(8.dp)
                         .clickable {
-                            val bookJson = Gson().toJson(book)
-                            navController.navigate("book_detail/${java.net.URLEncoder.encode(bookJson, "UTF-8")}")
+                            // ✅ Encode del JSON de forma segura
+                            val bookJson = Uri.encode(Gson().toJson(book))
+                            navController.navigate("book_detail/$bookJson")
                         }
                 ) {
                     Image(
                         painter = rememberAsyncImagePainter(
                             book.volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
-                        )
-                        ,
+                        ),
                         contentDescription = null,
                         modifier = Modifier.size(80.dp)
                     )
                     Spacer(Modifier.width(8.dp))
                     Column {
-                        Text(book.volumeInfo.title ?: "Sin título", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            book.volumeInfo.title ?: "Sin título",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                         Text(book.volumeInfo.authors?.joinToString() ?: "Autor desconocido")
                     }
                 }
@@ -67,3 +70,4 @@ fun SearchBooksScreen(navController: NavController) {
         }
     }
 }
+

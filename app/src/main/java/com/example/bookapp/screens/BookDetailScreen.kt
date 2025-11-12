@@ -6,7 +6,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -28,21 +27,20 @@ fun BookDetailScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-
-        // TÍTULO
+        // 📘 Título
         Text(book.volumeInfo.title ?: "Sin título", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
 
-        // AUTORES
+        // ✍️ Autores
         book.volumeInfo.authors?.let {
             Text(it.joinToString(), style = MaterialTheme.typography.bodyMedium)
             Spacer(Modifier.height(16.dp))
         }
 
-        // IMAGEN
+        // 🖼 Imagen del libro (se asegura HTTPS)
         book.volumeInfo.imageLinks?.thumbnail?.let { thumb ->
             Image(
-                painter = rememberAsyncImagePainter(thumb),
+                painter = rememberAsyncImagePainter(thumb.replace("http://", "https://")),
                 contentDescription = book.volumeInfo.title,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -51,20 +49,23 @@ fun BookDetailScreen(
             Spacer(Modifier.height(16.dp))
         }
 
-        // DESCRIPCIÓN
+        // 📝 Descripción
         Text(
-            text = book.volumeInfo.description ?: "Sin descripción",
+            text = book.volumeInfo.description ?: "Sin descripción disponible.",
             style = MaterialTheme.typography.bodyMedium,
             overflow = TextOverflow.Ellipsis
         )
 
         Spacer(Modifier.height(24.dp))
 
-        //  BOTÓN GUARDAR LIBRO
+        // 💾 Botón para guardar libro
         Button(
             onClick = {
                 viewModel.saveBook(book) { success ->
-                    savedMessage = if (success) "Libro guardado ✔" else "El libro ya existe en su biblioteca"
+                    savedMessage = if (success)
+                        "Libro guardado ✔"
+                    else
+                        "El libro ya existe en su biblioteca"
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -74,6 +75,7 @@ fun BookDetailScreen(
 
         Spacer(Modifier.height(16.dp))
 
+        // ✅ Mensaje de estado
         savedMessage?.let {
             Text(
                 text = it,
@@ -83,3 +85,4 @@ fun BookDetailScreen(
         }
     }
 }
+
