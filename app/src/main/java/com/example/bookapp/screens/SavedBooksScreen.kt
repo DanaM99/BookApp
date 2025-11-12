@@ -26,13 +26,23 @@ fun SavedBooksScreen(
 ) {
     val books by viewModel.savedBooks.collectAsState()
 
+    // 🔹 Estado del filtro visual
+    var selectedFilter by remember { mutableStateOf("Todos") }
+
+    // 🔹 Lista filtrada según el filtro seleccionado
+    val filteredBooks = when (selectedFilter) {
+        "Leídos" -> books.filter { it.status == "read" }
+        "Por leer" -> books.filter { it.status == "unread" || it.status == "to_read" }
+        else -> books
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        // 🔹 Encabezado visualmente agradable
+        // 🔹 Título
         Text(
             text = "Mis libros guardados",
             style = MaterialTheme.typography.headlineSmall.copy(
@@ -46,6 +56,18 @@ fun SavedBooksScreen(
             textAlign = TextAlign.Center
         )
 
+        // 🔹 Filtros visuales
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            FilterButton("Todos", selectedFilter) { selectedFilter = "Todos" }
+            FilterButton("Leídos", selectedFilter) { selectedFilter = "Leídos" }
+
+        }
+
         Divider(
             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             thickness = 1.dp,
@@ -54,10 +76,11 @@ fun SavedBooksScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (books.isEmpty()) {
+        // 🔹 Lista filtrada
+        if (filteredBooks.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    "Todavía no guardaste ningún libro.",
+                    "No hay libros en esta categoría.",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                     ),
@@ -69,7 +92,7 @@ fun SavedBooksScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(books) { book ->
+                items(filteredBooks) { book ->
                     Card(
                         onClick = { onBookClick(book.id) },
                         modifier = Modifier
@@ -121,20 +144,47 @@ fun SavedBooksScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                book.volumeInfo.pageCount?.let { pageCount ->
-                                    Spacer(Modifier.height(4.dp))
-                                    Text(
-                                        text = "$pageCount páginas",
-                                        style = MaterialTheme.typography.bodySmall.copy(
-                                            color = MaterialTheme.colorScheme.secondary
-                                        )
-                                    )
+
+                                Spacer(Modifier.height(4.dp))
+                                val statusLabel = when (book.status) {
+                                    "read" -> "Leído"
+                                    "unread", "to_read" -> "Por leer"
+                                    else -> "Sin estado"
                                 }
+                                Text(
+                                    text = statusLabel,
+                                    style = MaterialTheme.typography.bodySmall.copy(
+                                        color = if (book.status == "read")
+                                            Color(0xFF2E7D32)
+                                        else
+                                            MaterialTheme.colorScheme.secondary
+                                    )
+                                )
                             }
                         }
                     }
                 }
             }
         }
+    }
+}
+
+// 🔹 Botón reutilizable de filtro
+@Composable
+fun FilterButton(text: String, selected: String, onClick: () -> Unit) {
+    val isSelected = text == selected
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (isSelected)
+                MaterialTheme.colorScheme.primary
+            else
+                MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+        )
+    ) {
+        Text(
+            text = text,
+            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+        )
     }
 }

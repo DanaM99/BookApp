@@ -38,7 +38,6 @@ class SavedBooksViewModel : ViewModel() {
                     val title = doc.getString("title")
                     val authors = doc.get("authors") as? List<String>
                     val description = doc.getString("description")
-                    // ✅ Convertimos http -> https para que Coil pueda cargar la imagen
                     val thumbnail = doc.getString("thumbnail")?.replace("http://", "https://")
                     val pageCount = doc.getLong("pageCount")?.toInt()
                     val status = doc.getString("status") ?: "none"
@@ -96,7 +95,7 @@ class SavedBooksViewModel : ViewModel() {
                     "comment" to comment
                 )
             ).addOnSuccessListener {
-                // Actualizar localmente también
+
                 _savedBooks.value = _savedBooks.value.map {
                     if (it.id == bookId) it.copy(
                         status = status,
